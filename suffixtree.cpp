@@ -98,8 +98,12 @@ class SuffixTree
 		SuffixTree(string sequence)
 		{
 			mSequence = sequence + "$";
-			mRoot = new Node(0, 0, 0, 0, mRoot, mRoot);
-			mNumInternals = -1;
+
+			mRoot = new Node(-1, 0, 0, 0, mRoot, mRoot);
+			mRoot->mParent = mRoot;
+			mRoot->mSuffixLink = mRoot;
+
+			mNumInternals = -2;
 			mNumLeaves = 0;
 		}
 
@@ -110,14 +114,56 @@ class SuffixTree
 
 		void construction()
 		{
-			int x = 0;
 			Node *n = mRoot;
+
+			Node *u = NULL;
+			Node *up = NULL;
+
+			Node *v = NULL;
+			Node *vp = NULL;
 
 			// insert all of sequence's suffixes
 			for(int index = 0; index < mSequence.length(); index++)
 			{
-				n = findPath(mRoot, index);
-				x++;
+				u = n->mParent;
+
+				if(u->mSuffixLink != NULL)
+				{
+					if(u != mRoot)
+					{
+						v = u->mSuffixLink;
+						n = findPath(v, index);
+					}
+
+					else
+					{
+						v = u->mSuffixLink;
+						n = findPath(v, index);
+					}
+				}
+
+				else
+				{
+					up = u->mParent;
+
+					if(up != mRoot)
+					{
+						up = u->mParent;
+						vp = up->mSuffixLink;
+						v = nodeHops(vp, u->mIndex, u->mLength, 0);
+						u->mSuffixLink = v;
+						n = findPath(v, index);
+					}
+
+					else
+					{
+						up = u->mParent;
+						vp = up->mSuffixLink;
+						v = nodeHops(vp, u->mIndex + 1, u->mLength - 1, 0);
+						u->mSuffixLink = v;
+						n = findPath(v, index);
+					}
+				}
 			}
 		}
 
@@ -173,9 +219,9 @@ class SuffixTree
 
 		}
 
-		Node* nodeHops(Node* n, string beta, int index)
+		Node* nodeHops(Node* n, int index, int length, int i)
 		{
-			if(index == beta.length())
+			if(i <= length)
 			{
 				return n;
 			}
@@ -185,19 +231,19 @@ class SuffixTree
 			// 1: iterate through children to find edge to traverse
 			for(it; it != n->mChildren.end(); ++it)
 			{
-				cout << mSequence[(*it)->mIndex] << " " << beta[index] << endl;
-				if(mSequence[(*it)->mIndex] == beta[index])
+/* 				cout << mSequence[(*it)->mIndex] << " " << mSequence[index + i] << endl;
+ */				if(mSequence[(*it)->mIndex] == mSequence[index + i])
 				{	
 					// 2: recurse to next child node and return result
-					return nodeHops(*it, beta, index + (*it)->mLength);
+					return nodeHops(*it, index, length, i + (*it)->mLength);
 				}
 			}
 		}
 
-		void displayChildren(Node *u)
+		void displayChildren(Node *n)
 		{
 			// iterate through children
-			for(vector<Node*>::iterator it = u->mChildren.begin(); it != u->mChildren.end(); ++it)
+			for(vector<Node*>::iterator it = n->mChildren.begin(); it != n->mChildren.end(); ++it)
 			{
 				cout << (*it)->mId << " ";
 			}
@@ -205,50 +251,152 @@ class SuffixTree
 			cout << endl;
 		}
 
-		void depthFirstSearch()
+		void dfsEnumerate()
 		{
 			int counter = 0;
 
 			// begin depth first search from root
-			depthFirstSearchHelper(mRoot, &counter);
+			dfsEnumerateHelper(mRoot, &counter);
 		}
 
-		void depthFirstSearchHelper(Node *u, int *counter)
+		void dfsEnumerateHelper(Node *n, int *counter)
 		{
 			// print current node's string depth
-			cout << u->mStringDepth << " ";
+			cout << n->mStringDepth << " ";
 			(*counter)++;
 			if(*counter % 10 == 0)
 				cout << endl;
 
 			// depth first search through children
-			for(vector<Node*>::iterator it = u->mChildren.begin(); it != u->mChildren.end(); ++it)
+			for(vector<Node*>::iterator it = n->mChildren.begin(); it != n->mChildren.end(); ++it)
 			{
-				depthFirstSearchHelper(*it, counter);
+				dfsEnumerateHelper(*it, counter);
 			}
 		}
 
-		void depthFirstSearchPrint()
+		void dfsPrint()
 		{
-			string dfsString = "";
-
 			// begin depth first search from root
-			depthFirstSearchPrintHelper(mRoot, dfsString);
+			dfsPrintHelper(mRoot);
 		}
 
-		void depthFirstSearchPrintHelper(Node *n, string dfsString)
+		void dfsPrintHelper(Node *n)
 		{
-			dfsString += mSequence.substr(n->mIndex, n->mLength);
-
 			if(n->mChildren.size() < 1)
 			{
-				cout << n->mId << "   " << n->mStringDepth << "   " << dfsString <<  endl;
+				cout << n->mId << " ";
+
+				for(int i = 0; i < n->mStringDepth; i++)
+				{
+					cout << mSequence[n->mId + i];
+				}
+				
+				cout << endl;
+
 				return;
 			}
 
 			for(vector<Node*>::iterator it = n->mChildren.begin(); it != n->mChildren.end(); ++it)
 			{
-				depthFirstSearchPrintHelper(*it, dfsString);
+				dfsPrintHelper(*it);
+			}
+		}
+
+		void dfsBWT()
+		{
+			string bwt(mSequence.length() + 1, ' ');
+			int index = 0;
+
+			// begin depth first search from root
+			dfsBWTHelper(mRoot, &bwt, &index);
+			// cout << bwt;
+		}
+
+		void dfsBWTHelper(Node *n, string *bwt, int *index)
+		{
+			if(n->mChildren.size() < 1)
+			{
+				int sequenceIndex = n->mId;
+				sequenceIndex--;
+
+				if(sequenceIndex < 0)
+					sequenceIndex = mSequence.length() - 1;
+
+				(*bwt)[(*index)++] = mSequence[sequenceIndex];
+				cout << mSequence[sequenceIndex] << endl;
+			}
+
+			// depth first search through children
+			for(vector<Node*>::iterator it = n->mChildren.begin(); it != n->mChildren.end(); ++it)
+			{
+				dfsBWTHelper(*it, bwt, index);
+			}
+		}
+
+		void dfsRepeat()
+		{
+			Node *lemrNode = mRoot;
+			vector<int> lemrIndexes;
+
+			dfsRepeatHelper(mRoot, &lemrNode, &lemrIndexes);
+
+			Node* n = lemrNode;
+
+			while(n->mParent != mRoot)
+			{
+				n = n->mParent;
+			}
+
+			for(int i = 0; i < lemrNode->mStringDepth; i++)
+			{
+				cout << mSequence[n->mIndex + i];
+			}
+
+			cout << endl;
+
+			vector<int>::iterator it = lemrIndexes.begin();
+
+			// determine lexicographic index
+			for(it; it != lemrIndexes.end(); ++it)
+			{
+				cout << *it << " ";
+			}
+		}
+
+		void dfsRepeatHelper(Node *n, Node **lemrNode, vector<int> *lemrIndexes)
+		{
+			if(n->mChildren.size() < 1)
+			{
+				return;
+			}
+
+			else
+			{
+				if(n->mStringDepth > (*lemrNode)->mStringDepth)
+				{
+					(*lemrNode) = n;
+					(*lemrIndexes).clear();
+					dfsLemrIndexesHelper((*lemrNode), lemrIndexes);
+				}
+			}
+
+			for(vector<Node*>::iterator it = n->mChildren.begin(); it != n->mChildren.end(); ++it)
+			{
+				dfsRepeatHelper(*it, lemrNode, lemrIndexes);
+			}
+		}
+
+		void dfsLemrIndexesHelper(Node *n, vector<int> *lemrIndexes)
+		{
+			if(n->mChildren.size() < 1)
+			{
+				(*lemrIndexes).push_back(n->mId);
+				return;
+			}
+
+			for(vector<Node*>::iterator it = n->mChildren.begin(); it != n->mChildren.end(); ++it)
+			{
+				dfsLemrIndexesHelper(*it, lemrIndexes);
 			}
 		}
 };

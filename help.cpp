@@ -11,7 +11,7 @@ void determineArgs(string sequenceFile, string alphabetFile, string *header, str
 	sequenceStream.open(sequenceFile);
 	alphabetStream.open(alphabetFile);
 
-	sequenceStream >> *header;
+	getline(sequenceStream, *header);
 	*header = header->substr(1);
 
 	string tmp;
@@ -27,4 +27,3 @@ void determineArgs(string sequenceFile, string alphabetFile, string *header, str
 		*alphabet += tmp;
 	}
 }
-
