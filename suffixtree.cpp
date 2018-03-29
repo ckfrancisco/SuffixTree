@@ -92,13 +92,15 @@ class SuffixTree
 	public:
 		string mSequence;
 		Node *mRoot;
-		int mNumNodes;
+		int mNumInternals;
+		int mNumLeaves;
 
 		SuffixTree(string sequence)
 		{
 			mSequence = sequence + "$";
 			mRoot = new Node(0, 0, 0, 0, mRoot, mRoot);
-			mNumNodes = 0;
+			mNumInternals = -1;
+			mNumLeaves = 0;
 		}
 
 		~SuffixTree()
@@ -108,12 +110,14 @@ class SuffixTree
 
 		void construction()
 		{
+			int x = 0;
 			Node *n = mRoot;
 
 			// insert all of sequence's suffixes
 			for(int index = 0; index < mSequence.length(); index++)
 			{
-				findPath(mRoot, index);
+				n = findPath(mRoot, index);
+				x++;
 			}
 		}
 
@@ -148,8 +152,8 @@ class SuffixTree
 				if(i < (*it)->mLength)
 				{
 					// 5: insert a new internal node
-					Node *internal = n->insertInternal(mNumNodes++, i, it);
-					internal->insertChild(mSequence, mNumNodes++, index);
+					Node *internal = n->insertInternal(mNumInternals--, i, it);
+					return internal->insertChild(mSequence, mNumLeaves++, index);
 				}
 
 				// 4: break point not found (edge exhausted)
@@ -164,7 +168,7 @@ class SuffixTree
 			else
 			{
 				// 3: insert a new child node
-				return n->insertChild(mSequence, mNumNodes++, index);
+				return n->insertChild(mSequence, mNumLeaves++, index);
 			}
 
 		}
@@ -238,7 +242,7 @@ class SuffixTree
 
 			if(n->mChildren.size() < 1)
 			{
-				cout << dfsString << endl;
+				cout << n->mId << "   " << n->mStringDepth << "   " << dfsString <<  endl;
 				return;
 			}
 

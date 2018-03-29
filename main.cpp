@@ -15,10 +15,11 @@ int main(int argc, char* argv[])
 
 	cout << header << endl;
 	cout << sequence << endl;
-	cout << alphabet << endl;
+	cout << alphabet << endl << endl;
 
 	SuffixTree *suffixTree = new SuffixTree(sequence);
 	suffixTree->construction();
+	suffixTree->depthFirstSearchPrint();
 
 	return 0;
 }
