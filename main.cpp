@@ -29,8 +29,8 @@ int main(int argc, char* argv[])
 	/* suffixTree->dfsBWT();
 	cout << endl << endl; */
 
-	suffixTree->dfsRepeat();
-	cout << endl;
+	/* suffixTree->dfsRepeat();
+	cout << endl; */
 
 	/* cout << sequence.length() << endl;
 	cout << suffixTree->mNumLeaves - 1 << endl; */

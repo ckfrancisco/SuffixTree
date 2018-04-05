@@ -10,7 +10,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${workspaceFolder}/main",
-			"args": ["input/in1.txt", "input/alph1.txt"],
+			"args": ["sequences/yeastquarter.txt", "alphabets/alphabet.txt"],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
 			"environment": [],
@@ -23,7 +23,7 @@
 					"ignoreFailures": true
 				}
 			],
-            "preLaunchTask": "build
+            "preLaunchTask": "build"
 		}
 	]
 }

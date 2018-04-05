@@ -145,11 +145,10 @@ class SuffixTree
 				else
 				{
 					up = u->mParent;
+					vp = up->mSuffixLink;
 
 					if(up != mRoot)
 					{
-						up = u->mParent;
-						vp = up->mSuffixLink;
 						v = nodeHops(vp, u->mIndex, u->mLength, 0);
 						u->mSuffixLink = v;
 						n = findPath(v, index);
@@ -157,8 +156,6 @@ class SuffixTree
 
 					else
 					{
-						up = u->mParent;
-						vp = up->mSuffixLink;
 						v = nodeHops(vp, u->mIndex + 1, u->mLength - 1, 0);
 						u->mSuffixLink = v;
 						n = findPath(v, index);
@@ -176,6 +173,12 @@ class SuffixTree
 			{
 				if(mSequence[(*it)->mIndex] == mSequence[index + n->mStringDepth])
 				{
+					break;
+				}
+
+				if(mSequence[(*it)->mIndex] > mSequence[index + n->mStringDepth])
+				{
+					it = n->mChildren.end();
 					break;
 				}
 			}
@@ -221,21 +224,35 @@ class SuffixTree
 
 		Node* nodeHops(Node* n, int index, int length, int i)
 		{
-			if(i <= length)
-			{
-				return n;
-			}
-
 			vector<Node*>::iterator it = n->mChildren.begin();
+
+			if(length == 0)
+			{
+				return mRoot;
+			}
 
 			// 1: iterate through children to find edge to traverse
 			for(it; it != n->mChildren.end(); ++it)
 			{
-/* 				cout << mSequence[(*it)->mIndex] << " " << mSequence[index + i] << endl;
- */				if(mSequence[(*it)->mIndex] == mSequence[index + i])
+ 				/* cout << mSequence[(*it)->mIndex] << " " << mSequence[index + i] << endl; */
+				if(mSequence[(*it)->mIndex] == mSequence[index + i])
 				{	
 					// 2: recurse to next child node and return result
-					return nodeHops(*it, index, length, i + (*it)->mLength);
+
+					if(i + (*it)->mLength == length)
+					{
+						return  *it;
+					}
+
+					else if(length - i < (*it)->mLength)
+					{
+						return n->insertInternal(mNumInternals--, length - i, it);
+					}
+
+					else
+					{
+						return nodeHops(*it, index, length, i + (*it)->mLength);
+					}
 				}
 			}
 		}
