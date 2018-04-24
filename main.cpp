@@ -26,8 +26,8 @@ int main(int argc, char* argv[])
 	/* suffixTree->dfsEnumerate();
 	cout << endl << endl; */
 
-	/* suffixTree->dfsBWT();
-	cout << endl << endl; */
+	suffixTree->dfsBWT();
+	/* cout << endl << endl; */
 
 	/* suffixTree->dfsRepeat();
 	cout << endl; */

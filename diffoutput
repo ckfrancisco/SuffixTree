@@ -1,0 +1,5 @@
+diff BWTs/s1_bwt.txt BWTs/s1_bwt_answer.txt
+
+diff BWTs/s2_bwt.txt BWTs/s2_bwt_answer.txt
+
+diff BWTs/brca2_bwt.txt BWTs/brca2_bwt_answer.txt

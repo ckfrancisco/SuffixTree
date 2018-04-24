@@ -10,7 +10,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${workspaceFolder}/main",
-			"args": ["sequences/yeastquarter.txt", "alphabets/alphabet.txt"],
+			"args": ["sequences/yeast.txt", "alphabets/dna.txt"],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
 			"environment": [],
